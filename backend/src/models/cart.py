@@ -13,3 +13,5 @@ class Cart(Base):
     quantity_required: Mapped[int]
 
     user: Mapped["User"] = relationship()
+
+    items: Mapped[list["CartItem"]] = relationship(back_populates="cart")

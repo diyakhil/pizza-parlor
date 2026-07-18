@@ -10,3 +10,8 @@ This is how you generate a migration
 
 this is how you apply the migration
 `alembic upgrade head`
+
+Alembic and seed scripts are both different - not generating seed scripts with alembic
+how to run seed scripts:
+`python -m db.seed`
+run the latest alembic revision before running seed scripts

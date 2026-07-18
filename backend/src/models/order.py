@@ -13,3 +13,6 @@ class Order(Base):
     status: Mapped[str] = mapped_column(nullable=False)
 
     user: Mapped["User"] = relationship()
+
+    items: Mapped[list["OrderItem"]] = relationship(back_populates="order")
+    payment: Mapped["Payment"] = relationship(back_populates="order")
