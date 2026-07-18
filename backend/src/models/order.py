@@ -3,6 +3,11 @@ from models.base import Base
 from sqlalchemy import ForeignKey
 from models.user import User
 from sqlalchemy import Numeric
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from models.order_item import OrderItem
+    from models.payment import Payment
 
 class Order(Base):
     __tablename__ = "orders"

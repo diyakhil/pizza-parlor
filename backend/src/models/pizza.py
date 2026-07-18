@@ -3,6 +3,11 @@ from models.base import Base
 from decimal import Decimal
 from sqlalchemy import Numeric
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from models.pizza_ingredient import PizzaIngredient
+
 class Pizza(Base):
     __tablename__ = "pizzas"
 

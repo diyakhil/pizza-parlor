@@ -4,6 +4,11 @@ from models.base import Base
 from models.user import User
 from sqlalchemy import Numeric
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from models.cart_item import CartItem
+
 class Cart(Base):
     __tablename__ = "carts"
 
