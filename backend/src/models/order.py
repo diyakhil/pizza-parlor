@@ -17,7 +17,7 @@ class Order(Base):
     total_cost: Mapped[float] =  mapped_column(Numeric(10, 2), nullable=False)
     status: Mapped[str] = mapped_column(nullable=False)
 
-    user: Mapped["User"] = relationship()
+    user: Mapped["User"] = relationship(back_populates="orders")
 
     items: Mapped[list["OrderItem"]] = relationship(back_populates="order")
     payment: Mapped["Payment"] = relationship(back_populates="order")

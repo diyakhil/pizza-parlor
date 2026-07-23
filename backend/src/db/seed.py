@@ -2,7 +2,7 @@
 import asyncio
 from decimal import Decimal
 
-from db.session import AsyncSessionLocal
+from backend.src.db.async_session import AsyncSessionLocal
 from models import User, Pizza, InventoryItem, PizzaIngredient
 
 

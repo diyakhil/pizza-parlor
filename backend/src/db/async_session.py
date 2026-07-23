@@ -1,3 +1,4 @@
+#this is the async session file for the fast api application.
 import os
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from models import Base
