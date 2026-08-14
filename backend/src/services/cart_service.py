@@ -1,6 +1,4 @@
 # services/cart_service.py
-from decimal import Decimal
-
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from repositories.cart_repository import CartRepository
@@ -30,7 +28,7 @@ class CartService:
         cart = await self.cart_repo.get_by_user_id(user_id)
         if cart is not None:
             return cart
-        return await self.cart_repo.create(user_id=user_id, total_cost=Decimal("0.00"))
+        return await self.cart_repo.create(user_id=user_id)
 
     async def add_item(self, user_id: int, pizza_id: int, qty: int) -> Cart:
         pizza = await self.pizza_repo.get_by_id(pizza_id)
@@ -47,7 +45,7 @@ class CartService:
         else:
             await self.cart_repo.add_cart_item(cart.cart_id, pizza_id, qty)
 
-        return await self._recalculate_total(cart.cart_id)
+        return await self.cart_repo.get_by_user_id(user_id)
 
     async def update_item_qty(self, user_id: int, cart_item_id: int, qty: int) -> Cart:
         cart = await self.cart_repo.get_by_user_id(user_id)
@@ -62,8 +60,7 @@ class CartService:
             updated = await self.cart_repo.update_cart_item_qty(cart_item_id, qty)
             if updated is None:
                 raise CartItemNotFoundError(f"No cart item with id {cart_item_id}")
-
-        return await self._recalculate_total(cart.cart_id)
+        return await self.cart_repo.get_by_user_id(user_id)
 
     async def remove_item(self, user_id: int, cart_item_id: int) -> Cart:
         cart = await self.cart_repo.get_by_user_id(user_id)
@@ -73,9 +70,8 @@ class CartService:
         removed = await self.cart_repo.remove_cart_item(cart_item_id)
         if not removed:
             raise CartItemNotFoundError(f"No cart item with id {cart_item_id}")
-
-        return await self._recalculate_total(cart.cart_id)
-
+        return await self.cart_repo.get_by_user_id(user_id)
+    
     async def get_cart(self, user_id: int) -> Cart:
         cart = await self.cart_repo.get_by_user_id(user_id)
         if cart is None:
@@ -87,14 +83,4 @@ class CartService:
         if cart is None:
             raise CartNotFoundError(f"No cart for user {user_id}")
         await self.cart_repo.delete(cart.cart_id)
-
-    async def _recalculate_total(self, cart_id: int) -> Cart:
-        cart = await self.cart_repo.get_by_id(cart_id)
-        if cart is None:
-            raise CartNotFoundError(f"No cart with id {cart_id}")
-
-        total = Decimal("0.00")
-        for item in cart.items:
-            total += item.pizza.price * item.qty
-
-        return await self.cart_repo.update(cart_id, total_cost=total)
+        return await self.cart_repo.get_by_user_id(user_id)

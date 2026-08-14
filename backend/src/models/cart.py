@@ -15,7 +15,6 @@ class Cart(Base):
 
     cart_id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"))
-    total_cost: Mapped[Decimal] =  mapped_column(Numeric(10, 2), nullable=False)
 
     user: Mapped["User"] = relationship()
 
