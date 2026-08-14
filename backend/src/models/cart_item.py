@@ -9,7 +9,7 @@ class CartItem(Base):
     __tablename__ = "cart_items"
 
     cart_item_id: Mapped[int] = mapped_column(primary_key=True)
-    cart_id: Mapped[int] = mapped_column(ForeignKey("carts.cart_id"))
+    cart_id: Mapped[int] = mapped_column(ForeignKey("carts.cart_id", ondelete="CASCADE")) #have to add cascade to the FK too
     pizza_id: Mapped[int] = mapped_column(ForeignKey("pizzas.pizza_id"))
     qty: Mapped[int]
 

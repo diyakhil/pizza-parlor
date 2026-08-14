@@ -29,8 +29,8 @@ class CartRepository:
         )
         return result.scalar_one_or_none()
 
-    async def create(self, user_id: int, total_cost: Decimal) -> Cart:
-        cart = Cart(user_id=user_id, total_cost=total_cost)
+    async def create(self, user_id: int) -> Cart:
+        cart = Cart(user_id=user_id)
         self.session.add(cart)
         await self.session.flush()
         return cart
