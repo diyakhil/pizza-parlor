@@ -23,13 +23,12 @@ class OrderRepository:
             .where(Order.user_id == user_id)
             .options(selectinload(Order.items))
         )
-        return result.scalar_one_or_none()
+        return result.scalars().all()
 
-    async def create(self, user_id: int, total_cost: float, quantity_required: int) -> Order:
+    async def create(self, user_id: int, total_cost: float) -> Order:
         order = Order(
             user_id=user_id,
-            total_cost=total_cost,
-            quantity_required=quantity_required,
+            total_cost=total_cost
         )
         self.session.add(order)
         await self.session.flush()

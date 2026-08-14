@@ -1,2 +1,21 @@
-# Ignore environment variables
+# Environment variables
 .env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Packaging
+*.egg-info/
+build/
+dist/
+
+# Tooling
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# macOS
+.DS_Store
