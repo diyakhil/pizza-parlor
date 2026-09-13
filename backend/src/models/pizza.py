@@ -15,4 +15,4 @@ class Pizza(Base):
     name: Mapped[str] = mapped_column(nullable=False)
     price: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
     
-    ingredients: Mapped[list["PizzaIngredient"]] = relationship(back_populates="pizza")
+    ingredients: Mapped[list["PizzaIngredient"]] = relationship(back_populates="pizza", cascade="all, delete-orphan")
