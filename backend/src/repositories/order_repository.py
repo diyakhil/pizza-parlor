@@ -26,9 +26,13 @@ class OrderRepository:
         return result.scalars().all()
 
     async def create(self, user_id: int, total_cost: float) -> Order:
+        # items=[] for the same reason as Cart/Pizza: it lets OrderService append order
+        # items after this flush without a lazy load. (user_id stays a plain FK — it is a
+        # many-to-one, and User has no collection that could go stale.)
         order = Order(
             user_id=user_id,
-            total_cost=total_cost
+            total_cost=total_cost,
+            items=[],
         )
         self.session.add(order)
         await self.session.flush()

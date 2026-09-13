@@ -22,9 +22,9 @@ def get_pizza_service(session: AsyncSession = Depends(get_db)) -> PizzaService:
 
 # ---------- Routes ----------
 
-# PizzaRead (not PizzaDetailRead) because create() returns the freshly flushed Pizza
-# without its ingredients collection loaded.
-@router.post("", response_model=PizzaRead, status_code=status.HTTP_201_CREATED)
+# PizzaDetailRead is safe here now: add_ingredient appends through the relationship, so
+# the Pizza that create_pizza returns has its ingredients collection populated in memory
+@router.post("", response_model=PizzaDetailRead, status_code=status.HTTP_201_CREATED)
 async def create_pizza(
     payload: PizzaCreate,
     service: PizzaService = Depends(get_pizza_service),

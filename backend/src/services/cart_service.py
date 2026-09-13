@@ -30,6 +30,7 @@ class CartService:
             return cart
         return await self.cart_repo.create(user_id=user_id)
 
+    #add item creates a cart on demand
     async def add_item(self, user_id: int, pizza_id: int, qty: int) -> Cart:
         pizza = await self.pizza_repo.get_by_id(pizza_id)
         if pizza is None:
@@ -43,9 +44,8 @@ class CartService:
                 existing_item.cart_item_id, existing_item.qty + qty
             )
         else:
-            await self.cart_repo.add_cart_item(cart.cart_id, pizza_id, qty)
-
-        return await self.cart_repo.get_by_user_id(user_id)
+            await self.cart_repo.add_cart_item(cart, pizza_id, qty)
+        return cart
 
     async def update_item_qty(self, user_id: int, cart_item_id: int, qty: int) -> Cart:
         cart = await self.cart_repo.get_by_user_id(user_id)
@@ -53,24 +53,24 @@ class CartService:
             raise CartNotFoundError(f"No cart for user {user_id}")
 
         if qty <= 0:
-            removed = await self.cart_repo.remove_cart_item(cart_item_id)
+            removed = await self.cart_repo.remove_cart_item(cart, cart_item_id)
             if not removed:
                 raise CartItemNotFoundError(f"No cart item with id {cart_item_id}")
         else:
             updated = await self.cart_repo.update_cart_item_qty(cart_item_id, qty)
             if updated is None:
                 raise CartItemNotFoundError(f"No cart item with id {cart_item_id}")
-        return await self.cart_repo.get_by_user_id(user_id)
+        return cart
 
     async def remove_item(self, user_id: int, cart_item_id: int) -> Cart:
         cart = await self.cart_repo.get_by_user_id(user_id)
         if cart is None:
             raise CartNotFoundError(f"No cart for user {user_id}")
 
-        removed = await self.cart_repo.remove_cart_item(cart_item_id)
+        removed = await self.cart_repo.remove_cart_item(cart, cart_item_id)
         if not removed:
             raise CartItemNotFoundError(f"No cart item with id {cart_item_id}")
-        return await self.cart_repo.get_by_user_id(user_id)
+        return cart
     
     async def get_cart(self, user_id: int) -> Cart:
         cart = await self.cart_repo.get_by_user_id(user_id)

@@ -36,7 +36,7 @@ class PizzaService:
         if ingredients:
             for ingredient in ingredients:
                 await self.pizza_repo.add_ingredient(
-                    pizza_id=pizza.pizza_id,
+                    pizza,
                     inventory_item_id=ingredient.inventory_item_id,
                     quantity_required=ingredient.quantity_required,
                 )

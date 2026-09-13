@@ -30,7 +30,7 @@ class CartRepository:
         return result.scalar_one_or_none()
 
     async def create(self, user_id: int) -> Cart:
-        cart = Cart(user_id=user_id)
+        cart = Cart(user_id=user_id, items=[])
         self.session.add(cart)
         await self.session.flush()
         return cart
@@ -72,9 +72,13 @@ class CartRepository:
         )
         return list(result.scalars().all())
 
-    async def add_cart_item(self, cart_id: int, pizza_id: int, qty: int) -> CartItem:
-        cart_item = CartItem(cart_id=cart_id, pizza_id=pizza_id, qty=qty)
-        self.session.add(cart_item)
+    # takes the Cart itself, not cart_id: appending through the relationship lets
+    # SQLAlchemy fill in cart_id at flush AND keeps cart.items correct in memory, so
+    # callers can return the cart directly instead of re-querying it. Setting the FK by
+    # hand does the insert but leaves an already-loaded cart.items stale.
+    async def add_cart_item(self, cart: Cart, pizza_id: int, qty: int) -> CartItem:
+        cart_item = CartItem(pizza_id=pizza_id, qty=qty)
+        cart.items.append(cart_item)
         await self.session.flush()
         return cart_item
 
@@ -86,10 +90,13 @@ class CartRepository:
         await self.session.flush()
         return cart_item
 
-    async def remove_cart_item(self, cart_item_id: int) -> bool:
-        cart_item = await self.session.get(CartItem, cart_item_id)
+    async def remove_cart_item(self, cart: Cart, cart_item_id: int) -> bool:
+        cart_item = next(
+            (i for i in cart.items if i.cart_item_id == cart_item_id), None
+        )
         if cart_item is None:
             return False
+        cart.items.remove(cart_item)
         await self.session.delete(cart_item)
         await self.session.flush()
         return True
