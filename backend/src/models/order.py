@@ -15,7 +15,9 @@ class Order(Base):
     order_id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"))
     total_cost: Mapped[float] =  mapped_column(Numeric(10, 2), nullable=False)
-    status: Mapped[str] = mapped_column(nullable=False)
+    
+    #values: "pending", "placed", "shipped", "delivered", "cancelled"
+    status: Mapped[str] = mapped_column(nullable=False, default="pending")
 
     user: Mapped["User"] = relationship(back_populates="orders")
 
