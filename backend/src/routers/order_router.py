@@ -10,6 +10,7 @@ from services.order_service import (
     OrderNotFoundError,
     EmptyCartError,
     PaymentFailedError,
+    InsufficientInventoryError,
 )
 
 router = APIRouter(prefix="/orders", tags=["orders"])
@@ -34,6 +35,8 @@ async def create_order(
         return await service.create_order(payload.user_id)
     except EmptyCartError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+    except InsufficientInventoryError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e))
     except PaymentFailedError as e:
         raise HTTPException(
             status_code=status.HTTP_402_PAYMENT_REQUIRED, detail=str(e)
