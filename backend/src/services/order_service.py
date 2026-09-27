@@ -68,7 +68,7 @@ class OrderService:
             )
 
         #before we charge, check the inventory for each pizza's ingredients and decrement the inventory if available, otherwise raise an error
-        for inventory_item_id, qty in needed.items():
+        for inventory_item_id, qty in sorted(needed.items()):
             result = await self.inventory_repo.atomic_decrement(inventory_item_id, qty)
             if not result:
                 raise InsufficientInventoryError(
@@ -89,7 +89,6 @@ class OrderService:
         order.status = "placed"
         for item in list(cart.items):
             await self.cart_repo.remove_cart_item(cart, item.cart_item_id)
-        await self.session.flush()
         return order
 
     async def get_order(self, order_id: int) -> Order:
