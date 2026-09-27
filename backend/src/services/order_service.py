@@ -7,6 +7,7 @@ from repositories.order_repository import OrderRepository
 from repositories.cart_repository import CartRepository
 from repositories.pizza_repository import PizzaRepository
 from repositories.inventory_repository import InventoryRepository
+from repositories.payment_repository import PaymentRepository
 from models.order import Order
 from models.order_item import OrderItem
 from services.payment_gateway import PaymentGateway
@@ -35,6 +36,7 @@ class OrderService:
         self.cart_repo = CartRepository(session)
         self.pizza_repo = PizzaRepository(session)
         self.inventory_repo = InventoryRepository(session)
+        self.payment_repo = PaymentRepository(session)
         self.gateway = PaymentGateway()
 
     async def create_order(self, user_id: int) -> Order:
@@ -75,15 +77,26 @@ class OrderService:
                     f"Not enough inventory item {inventory_item_id} (needed {qty})"
                 )
 
+        idempotency_key = f"order-{order.order_id}"
+        payment = await self.payment_repo.create(
+            order_id=order.order_id,
+            total_cost=total_cost,
+            idempotency_key=idempotency_key,
+            status="pending",
+        )
+
         #call charge in the payment gateway with the order total and an idempotency key
         charged = self.gateway.charge(
             amount=float(total_cost),
-            idempotency_key=f"order-{order.order_id}",
+            idempotency_key=idempotency_key,
         )
 
         #if charge fails, rollback transaction and return an error
         if not charged:
             raise PaymentFailedError(f"Payment declined for user {user_id}")
+
+        #the charge went through, so record the outcome on the row inserted above.
+        payment.status = "successful"
 
         #if the charge is successful, update the order status to "placed", return the order, and empty the cart
         order.status = "placed"
