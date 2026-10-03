@@ -9,3 +9,4 @@ from .order_item import OrderItem
 from .payment import Payment
 from .cart import Cart
 from .order import Order
+from .kitchen_tickets import KitchenTicket
