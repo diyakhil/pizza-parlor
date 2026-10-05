@@ -4,9 +4,11 @@
 SRC     := backend/src
 ALEMBIC := -c $(SRC)/db/alembic.ini
 PORT    ?= 8000
+ORDER   ?= 1
 
 .DEFAULT_GOAL := help
-.PHONY: help dev worker redis-start redis-stop migrate revision seed
+.PHONY: help dev worker redis-start redis-stop migrate revision seed \
+	try-kitchen try-notify
 
 help: ## Show available targets
 	@grep -E '^[a-z][a-z-]*:.*?## ' $(MAKEFILE_LIST) \
@@ -27,9 +29,10 @@ redis-stop: ## Stop Redis
 migrate: ## Apply migrations up to head
 	alembic $(ALEMBIC) upgrade head
 
-revision: ## Autogenerate a migration: make revision m="your message"
+revision: ## Autogenerate a migration AND apply it: make revision m="your message"
 	@test -n "$(m)" || { echo 'usage: make revision m="your message"'; exit 1; }
 	alembic $(ALEMBIC) revision --autogenerate -m "$(m)"
+	$(MAKE) migrate
 
 seed: ## Run the seed script (run migrate first)
 	cd $(SRC) && python -m db.seed
