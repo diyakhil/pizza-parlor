@@ -1,5 +1,9 @@
 # CLAUDE.md
 
+## General Instructions
+
+Try to explain everything very concisely and without jargon.
+
 ## What this project is
 
 A backend for a fictional pizza parlor: users, a menu of pizzas, ingredient inventory,
@@ -15,10 +19,10 @@ notifying the customer shouldn't all happen inside one blocking HTTP request.
 
 ### How Diya wants to work
 
-**Explain concepts and steps. Do not write the code.** This is the default for every
-request unless she explicitly says "write it" / "implement it" / "just do it."
+**Explain concepts and steps. Do not write the code.** This is the default for every request unless she explicitly says "write it" / "implement it" / "just do it."
 
 When asked to add or change something:
+
 1. Explain the concept — what problem this solves, why the pattern exists, what the
    trade-offs are.
 2. Lay out the steps she should take, in order, naming the files involved.
@@ -36,14 +40,14 @@ See `~/.claude/projects/.../memory/` for standing decisions on scope.
 
 ## Stack
 
-| Piece | Choice | Notes |
-|---|---|---|
-| Web | FastAPI + uvicorn | async, DI via `Depends` |
-| ORM | SQLAlchemy 2.0 (typed `Mapped[...]`) | async engine for the API |
-| DB | Postgres | two URLs in `.env` — see below |
-| Migrations | Alembic | autogenerate from `models.Base.metadata` |
-| Queue | Celery + Redis | broker `redis://…/0`, results `redis://…/1` |
-| Validation | Pydantic v2 | DTOs, `from_attributes=True` |
+| Piece      | Choice                               | Notes                                       |
+| ---------- | ------------------------------------ | ------------------------------------------- |
+| Web        | FastAPI + uvicorn                    | async, DI via `Depends`                     |
+| ORM        | SQLAlchemy 2.0 (typed `Mapped[...]`) | async engine for the API                    |
+| DB         | Postgres                             | two URLs in `.env` — see below              |
+| Migrations | Alembic                              | autogenerate from `models.Base.metadata`    |
+| Queue      | Celery + Redis                       | broker `redis://…/0`, results `redis://…/1` |
+| Validation | Pydantic v2                          | DTOs, `from_attributes=True`                |
 
 ### Two database URLs, on purpose
 
@@ -121,6 +125,7 @@ made explicit, and `OrderRead` omits `payment` for the same reason.
 Working: users, pizzas (+ ingredients), carts — full CRUD through router → service → repo.
 
 Not built yet:
+
 - **`OrderService.create_order` / `get_order`** are `NotImplementedError` stubs. The
   routes exist and answer **501**. Three design questions are still open and are Diya's to
   answer: does ordering decrement inventory, does it clear the cart, what is the starting

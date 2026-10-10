@@ -102,6 +102,23 @@ class OrderService:
         order.status = "placed"
         for item in list(cart.items):
             await self.cart_repo.remove_cart_item(cart, item.cart_item_id)
+
+        # need to commit the transaction before enqueuing tasks, otherwise order may not exist when worker dequeues
+        await self.session.commit()
+
+        # Imported inside the function on purpose. proj.tasks imports services/sync/*,
+        # which import this module for its exception classes, so a module-level import
+        # here would be a cycle (ImportError on a partially initialized module).
+        from proj.tasks import (
+            create_ticket_for_order_task,
+            send_order_confirmation_task,
+        )
+
+        # delay is a call that comes from the Celery library. It puts the task on a message broker (we are using redis in our case).
+        # the celery worker picks up the tasks from the broker and executes them
+        send_order_confirmation_task.delay(order.order_id)
+        create_ticket_for_order_task.delay(order.order_id)
+
         return order
 
     async def get_order(self, order_id: int) -> Order:

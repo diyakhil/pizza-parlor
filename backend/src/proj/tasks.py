@@ -8,6 +8,8 @@ Tasks are plain sync functions — they run outside the event loop, so the sync
 services they call open their own session. Pass IDs, not ORM objects since it is stored in redis as text; the worker
 re-fetches the row. Keep the bodies trivial: one call into `services/sync/`.
 The name is what makes the task discoverable by Celery.
+
+Since we have declare Redis to be the message broker in the celery config, these tasks will automatically go into celery when called
 """
 
 from .celery import app
