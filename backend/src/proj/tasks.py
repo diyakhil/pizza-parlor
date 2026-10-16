@@ -15,12 +15,13 @@ Since we have declare Redis to be the message broker in the celery config, these
 from .celery import app
 from services.sync.notification_service import send_order_confirmation
 from services.sync.kitchen_service import create_ticket_for_order
+from sqlalchemy.exc import OperationalError, InterfaceError
 
-
-@app.task(name="notifications.send_order_confirmation", ignore_result=True)
+#need the OS Error for notifications and the other 2 in case get order fails
+@app.task(name="notifications.send_order_confirmation", ignore_result=True, autoretry_for=(OSError, OperationalError, InterfaceError), max_retries=3, retry_backoff=True)
 def send_order_confirmation_task(order_id: int) -> None:
     send_order_confirmation(order_id)
 
-@app.task(name="kitchen.create_ticket_for_order", ignore_result=True)
+@app.task(name="kitchen.create_ticket_for_order", ignore_result=True, autoretry_for=(OperationalError, InterfaceError), max_retries=3, retry_backoff=True)
 def create_ticket_for_order_task(order_id: int) -> None:
     create_ticket_for_order(order_id)
